@@ -2,6 +2,8 @@ package com.crud_app.emp.models;
 
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Pattern;
 
 import java.time.LocalDate;
 
@@ -25,12 +27,16 @@ public class Employee {
     @Column(name = "job_title")
     private String jobTitle;
 
-    public Employee(Integer id, String name, LocalDate dob, LocalDate hireDate, String jobTitle) {
+    @Column(name = "email")
+    private String email;
+
+    public Employee(Integer id, String name, LocalDate dob, LocalDate hireDate, String jobTitle, String email) {
         this.id = id;
         this.name = name;
         this.dob = dob;
         this.hireDate = hireDate;
         this.jobTitle = jobTitle;
+        this.email = email;
     }
 
     public Employee() {
@@ -74,5 +80,13 @@ public class Employee {
 
     public void setJobTitle(String jobTitle) {
         this.jobTitle = jobTitle;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

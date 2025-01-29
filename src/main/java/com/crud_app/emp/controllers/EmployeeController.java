@@ -4,6 +4,7 @@ import com.crud_app.emp.dto.EmployeeDTO;
 import com.crud_app.emp.dto.EmployeeSummaryDTO;
 import com.crud_app.emp.repositories.EmpSummary;
 import com.crud_app.emp.services.EmployeeService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -13,6 +14,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/emp")
@@ -43,13 +47,13 @@ public class EmployeeController {
     }
 
     @PostMapping("")
-    public ResponseEntity<?> addEmployee(@RequestBody EmployeeDTO employeeDTO){
+    public ResponseEntity<?> addEmployee(@Valid @RequestBody EmployeeDTO employeeDTO){
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(employeeService.saveEmployee(employeeDTO));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateEmployee(@PathVariable("id") Integer id, @RequestBody EmployeeDTO employeeDTO){
+    public ResponseEntity<?> updateEmployee(@PathVariable("id") Integer id, @Valid @RequestBody EmployeeDTO employeeDTO){
         return ResponseEntity.status(HttpStatus.OK)
                 .body(employeeService.updateEmployee(employeeDTO, id));
     }
@@ -86,17 +90,25 @@ public class EmployeeController {
         }
     }
 
+//    @GetMapping("/pages")
+//    public Page<EmpSummary> getAllEmployees(
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "3") int size,
+//            @RequestParam(defaultValue = "id") String sortBy,
+//            @RequestParam(defaultValue = "true") boolean ascending
+//    ){
+//        Sort sort = ascending ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+//        Pageable pageable = PageRequest.of(page, size, sort);
+//        return employeeService.getALlEmployees(pageable);
+//    }
+
     @GetMapping("/pages")
-    public Page<EmpSummary> getAllEmployees(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "3") int size,
-            @RequestParam(defaultValue = "id") String sortBy,
-            @RequestParam(defaultValue = "true") boolean ascending
-    ){
-        Sort sort = ascending ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
-        Pageable pageable = PageRequest.of(page, size, sort);
-        return employeeService.getALlEmployees(pageable);
+    public ResponseEntity<?> getAllEmployees(Pageable pageable){
+        return ResponseEntity.status(HttpStatus.OK).body(employeeService.getALlEmployees(pageable));
     }
+
+
+
 
 
 }

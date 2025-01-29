@@ -1,6 +1,8 @@
 package com.crud_app.emp.services;
 
 import com.crud_app.emp.dto.EmployeeSummaryDTO;
+import com.crud_app.emp.exceptions.EmployeeAlreadyExistsException;
+import com.crud_app.emp.exceptions.EmployeeNotFoundException;
 import com.crud_app.emp.repositories.EmpSummary;
 import com.crud_app.emp.dto.EmployeeDTO;
 import com.crud_app.emp.models.Employee;
@@ -26,12 +28,17 @@ public class EmployeeService {
     EmployeeRepository employeeRepository;
 
     public EmployeeDTO saveEmployee(EmployeeDTO employeeDTO){
+        if(employeeRepository.findByName(employeeDTO.getName()).isPresent()) {
+            throw new EmployeeAlreadyExistsException("Employee with given name: " + employeeDTO.getName() + " already exists.");
+        }
         Employee employee = convertToEmployee(employeeDTO);
         return convertToEmployeeDTO(employeeRepository.save(employee));
     }
 
     public EmployeeDTO getEmployee(Integer id){
-        return convertToEmployeeDTO(employeeRepository.getReferenceById(id));
+        return convertToEmployeeDTO(employeeRepository.findById(id).orElseThrow(
+                ()
+                        -> new EmployeeNotFoundException("Employee with id " + id + " not found!")));
     }
 
     public List<EmployeeDTO> getAllEmployees(){
@@ -49,8 +56,11 @@ public class EmployeeService {
     }
 
     public EmployeeDTO updateEmployee(EmployeeDTO employeeDTO, Integer id){
-        Employee employee = employeeRepository.getReferenceById(id);
-        employee = convertToEmployee(employeeDTO);
+        employeeRepository.findById(id).orElseThrow(
+                ()
+                        -> new EmployeeNotFoundException("Employee with id " + id + " not found!"));
+        Employee employee = convertToEmployee(employeeDTO);
+        employee.setId(id);
         return convertToEmployeeDTO(employeeRepository.save(employee));
     }
 
@@ -60,7 +70,7 @@ public class EmployeeService {
             return "Employee with id: " + id + " deleted.";
         }
         else {
-            return "Employee with id: " + id + " not found.";
+            throw new EmployeeNotFoundException("Employee with id " + id + " not found");
         }
     }
 
@@ -77,7 +87,7 @@ public class EmployeeService {
         }
         employee.setJobTitle(employeeDTO.getJobTitle());
         employee.setName(employeeDTO.getName());
-
+        employee.setEmail(employeeDTO.getEmail());
         return employee;
     }
 
@@ -92,6 +102,7 @@ public class EmployeeService {
         employeeDTO.setId(employee.getId());
         employeeDTO.setJobTitle(employee.getJobTitle());
         employeeDTO.setName(employee.getName());
+        employeeDTO.setEmail(employee.getEmail());
         return employeeDTO;
     }
 
@@ -114,7 +125,9 @@ public class EmployeeService {
     }
 
     public EmployeeSummaryDTO getEmployeeSummary(Integer id){
-        return convertToEmployeeSummaryDTO(employeeRepository.findEmployeeSummaryById(id));
+        return convertToEmployeeSummaryDTO(employeeRepository.findEmployeeSummaryById(id).orElseThrow(
+                ()
+                        -> new EmployeeNotFoundException("Employee with id " + id + " not found!")));
     }
 
 }

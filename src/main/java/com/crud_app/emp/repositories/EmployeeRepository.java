@@ -6,10 +6,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
     List<EmpSummary> findBy();
-    EmpSummary findEmployeeSummaryById(Integer Id);
-
+    Optional<EmpSummary> findEmployeeSummaryById(Integer Id);
+    Optional<Employee> findByName(String name);
     Page<EmpSummary> findBy(Pageable pageable);
 }
