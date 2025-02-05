@@ -49,8 +49,8 @@ public class ErrorResponse {
     @Override
     public String toString() {
         return "\n{" +
-                "\n\tstatusCode=" + statusCode +
-                ", \n\terrors=" + this.ErrorListToString() +
-                "\n}";
+                "\n\t\"statusCode\":\"" + statusCode +
+                "\", \n\t\"errors\":\"" + this.ErrorListToString() +
+                "\"\n}";
     }
 }
