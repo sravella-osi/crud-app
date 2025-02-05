@@ -11,8 +11,9 @@ public class ErrorResponse {
     private String ErrorListToString(){
         StringBuilder errorsString = new StringBuilder("\n\t[\n");
         for(String error: this.errors){
-            errorsString.append("\t\t").append(error).append("\n");
+            errorsString.append("\t\t\"").append(error).append("\",\n");
         }
+        errorsString.deleteCharAt(errorsString.lastIndexOf(","));
         errorsString.append("\t]");
         return errorsString.toString();
     }
@@ -50,7 +51,7 @@ public class ErrorResponse {
     public String toString() {
         return "\n{" +
                 "\n\t\"statusCode\":\"" + statusCode +
-                "\", \n\t\"errors\":\"" + this.ErrorListToString() +
-                "\"\n}";
+                "\", \n\t\"errors\":" + this.ErrorListToString() +
+                "\n}";
     }
 }
