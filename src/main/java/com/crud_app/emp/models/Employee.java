@@ -2,8 +2,6 @@ package com.crud_app.emp.models;
 
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Pattern;
 
 import java.time.LocalDate;
 

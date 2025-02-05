@@ -37,4 +37,13 @@ public class EmployeeSummaryDTO {
         this.name = name;
         this.jobTitle = jobTitle;
     }
+
+    @Override
+    public String toString() {
+        return "\n{" +
+                "\n\t\"id\":\"" + id +
+                "\", \n\t\"name\":\"" + name +
+                "\", \n\t\"jobTitle\":\"" + jobTitle +
+                "\"\n}";
+    }
 }

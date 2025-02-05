@@ -1,22 +1,14 @@
 package com.crud_app.emp.controllers;
 
 import com.crud_app.emp.dto.EmployeeDTO;
-import com.crud_app.emp.dto.EmployeeSummaryDTO;
-import com.crud_app.emp.repositories.EmpSummary;
+import com.crud_app.emp.exceptions.EmployeeNotFoundException;
 import com.crud_app.emp.services.EmployeeService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/emp")
@@ -31,8 +23,7 @@ public class EmployeeController {
             return ResponseEntity.status(HttpStatus.OK).body(employeeService.getEmployee(id));
         }
         else {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                    .body("Employee by given id not found");
+            throw new EmployeeNotFoundException("Employee with id " + id + " not found!");
         }
     }
 
@@ -42,7 +33,7 @@ public class EmployeeController {
             return ResponseEntity.status(HttpStatus.OK).body(employeeService.getAllEmployees());
         }
         else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Employees not found");
+            throw new EmployeeNotFoundException("Employees Not found");
         }
     }
 
@@ -62,7 +53,7 @@ public class EmployeeController {
     public ResponseEntity<?> deleteEmployee(@PathVariable("id") Integer id){
         String message = employeeService.deleteEmployee(id);
         if(message.contains("not found")){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(message);
+            throw new EmployeeNotFoundException("Employee with id " + id + " not found");
         }
         else {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body(message);
@@ -71,22 +62,21 @@ public class EmployeeController {
 
     @GetMapping("/summary")
     public ResponseEntity<?> getEmployeesSummary(){
-        if(employeeService.getEmployeesSummary()!=null){
+        if(!employeeService.getEmployeesSummary().isEmpty()){
             return ResponseEntity.status(HttpStatus.OK).body(employeeService.getEmployeesSummary());
         }
         else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Employees not found");
+            throw new EmployeeNotFoundException("Employees not found!");
         }
     }
 
     @GetMapping("/summary/{id}")
     public ResponseEntity<?> getEmployeesSummary(@PathVariable("id") Integer id){
-        if(employeeService.getEmployee(id)!=null){
+        if(employeeService.getEmployeeSummary(id)!=null){
             return ResponseEntity.status(HttpStatus.OK).body(employeeService.getEmployeeSummary(id));
         }
         else {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT)
-                    .body("Employee by given id not found");
+            throw new EmployeeNotFoundException("Employee with id " + id + " not found!");
         }
     }
 
@@ -106,9 +96,5 @@ public class EmployeeController {
     public ResponseEntity<?> getAllEmployees(Pageable pageable){
         return ResponseEntity.status(HttpStatus.OK).body(employeeService.getALlEmployees(pageable));
     }
-
-
-
-
 
 }

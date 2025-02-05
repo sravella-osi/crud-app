@@ -10,6 +10,7 @@ import com.crud_app.emp.repositories.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -42,6 +43,9 @@ public class EmployeeService {
     }
 
     public List<EmployeeDTO> getAllEmployees(){
+        if(employeeRepository.findAll().isEmpty()){
+            throw new EmployeeNotFoundException("No employees found");
+        }
         List<EmployeeDTO> employeeDTOList = new ArrayList<>();
         for(Employee employee : employeeRepository.findAll()){
             EmployeeDTO employeeDTO = convertToEmployeeDTO(employee);
