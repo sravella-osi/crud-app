@@ -3,9 +3,11 @@ package com.crud_app.emp.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import lombok.Data;
 
 import java.util.Objects;
 
+@Data
 public class EmployeeDTO {
 
     private Integer id;

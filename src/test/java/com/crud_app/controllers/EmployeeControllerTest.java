@@ -8,16 +8,20 @@ import com.crud_app.emp.exceptions.EmployeeAlreadyExistsException;
 import com.crud_app.emp.exceptions.EmployeeNotFoundException;
 import com.crud_app.emp.exceptions.ErrorResponse;
 import com.crud_app.emp.models.Employee;
+import com.crud_app.emp.repositories.EmpSummary;
 import com.crud_app.emp.services.EmployeeService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -190,20 +194,13 @@ public class EmployeeControllerTest {
                 "2024-11-02",
                 "PAT",
                 "saran@email.com");
-        EmployeeDTO input = getEmployeeDTO(
+        when(employeeService.saveEmployee(
+                getEmployeeDTO(
                 "Saran",
                 "1999-11-02",
                 "2024-11-02",
                 "PAT",
-                "saran@email.com");
-        when(employeeService.saveEmployee(
-                input
-//                getEmployeeDTO(
-//                "Saran",
-//                "1999-11-02",
-//                "2024-11-02",
-//                "PAT",
-//                "saran@email.com")
+                "saran@email.com")
         )).thenReturn(expected);
         MvcResult mvcResult = mockMvc.perform(post("/api/emp").content("{" +
                 "\"name\" : \"Saran\"," +
@@ -268,6 +265,87 @@ public class EmployeeControllerTest {
         System.out.println("Expected: " + expected + "\nActual: " + actual);
         assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
     }
+
+    @Test
+    void updateThrowsEmployeeNotFound() throws Exception {
+        List<String> errors = new ArrayList<>();
+        errors.add("Employee with id 1 not found!");
+        ErrorResponse expected = getErrorResponse(HttpStatus.NOT_FOUND.value(),errors);
+        when(employeeService.updateEmployee(any(EmployeeDTO.class),eq(1)))
+                .thenThrow(new EmployeeNotFoundException("Employee with id 1 not found!"));
+        MvcResult mvcResult = mockMvc.perform(put("/api/emp/1").content("{" +
+                                "\"id\" : 1," +
+                                "\"name\" : \"Saran\"," +
+                                "\"dob\" : \"1999-11-02\"," +
+                                "\"hireDate\" : \"2024-11-02\"," +
+                                "\"jobTitle\" : \"PAT\"," +
+                                "\"email\" : \"saran@email.com\"" +
+                                "}")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print()).andExpect(status().isNotFound()).andReturn();
+        String response = mvcResult.getResponse().getContentAsString();
+        System.out.println(response);
+        ErrorResponse actual = new ObjectMapper().readValue(response,ErrorResponse.class);
+        System.out.println("Expected: " + expected + "\nActual: " + actual);
+        assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
+    }
+
+    @Test
+    void shouldUpdateEmployee() throws Exception {
+        EmployeeDTO expected = getEmployeeDTO(
+                1,
+                "Saran",
+                "1999-11-02",
+                "2024-11-02",
+                "PAT",
+                "saran@email.com");
+        when(employeeService.updateEmployee(expected,1)).thenReturn(expected);
+        MvcResult mvcResult = mockMvc.perform(put("/api/emp/1").content("{" +
+                                "\"id\" : 1," +
+                                "\"name\" : \"Saran\"," +
+                                "\"dob\" : \"1999-11-02\"," +
+                                "\"hireDate\" : \"2024-11-02\"," +
+                                "\"jobTitle\" : \"PAT\"," +
+                                "\"email\" : \"saran@email.com\"" +
+                                "}")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print()).andExpect(status().isOk()).andReturn();
+        String response = mvcResult.getResponse().getContentAsString();
+        System.out.println(response);
+        EmployeeDTO actual = new ObjectMapper().readValue(response,EmployeeDTO.class);
+        System.out.println("Expected: " + expected + "\nActual: " + actual);
+        assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
+    }
+
+    @Test
+    void getPaginatedEmployee() throws Exception {
+        EmployeeSummaryDTO emp1 = new EmployeeSummaryDTO(1, "Alice", "Manager");
+
+        EmployeeSummaryDTO emp2 = new EmployeeSummaryDTO(2, "Bob", "Developer");
+
+        Page<EmployeeSummaryDTO> empSummaryPage = new PageImpl<>(List.of(emp1, emp2));
+
+        when(employeeService.getALlEmployees(any(Pageable.class))).thenReturn(empSummaryPage);
+
+        MvcResult mvcResult = mockMvc.perform(get("/api/emp/pages")
+                        .param("page", "0")
+                        .param("size", "2")
+                        .param("sort", "name,asc")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+        String response = mvcResult.getResponse().getContentAsString();
+        System.out.println("Response: "+response);
+        ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
+
+        verify(employeeService).getALlEmployees(pageableCaptor.capture());
+        PageRequest pageable = (PageRequest) pageableCaptor.getValue();
+
+        assertThat(pageable.getPageNumber()).isEqualTo(0);
+        assertThat(pageable.getPageSize()).isEqualTo(2);
+        assertThat(pageable.getSort()).isEqualTo(Sort.by(Sort.Order.asc("name")));
+    }
+
 
     @Test
     void shouldDeleteEmplpoyee() throws Exception{

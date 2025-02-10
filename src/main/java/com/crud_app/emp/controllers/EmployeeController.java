@@ -1,6 +1,7 @@
 package com.crud_app.emp.controllers;
 
 import com.crud_app.emp.dto.EmployeeDTO;
+import com.crud_app.emp.dto.EmployeeSummaryDTO;
 import com.crud_app.emp.exceptions.EmployeeNotFoundException;
 import com.crud_app.emp.services.EmployeeService;
 import jakarta.validation.Valid;
@@ -9,6 +10,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/emp")
@@ -19,8 +22,9 @@ public class EmployeeController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getEmployee(@PathVariable("id") Integer id){
-        if(employeeService.getEmployee(id)!=null){
-            return ResponseEntity.status(HttpStatus.OK).body(employeeService.getEmployee(id));
+        EmployeeDTO employeeDTO = employeeService.getEmployee(id);
+        if(employeeDTO!=null){
+            return ResponseEntity.status(HttpStatus.OK).body(employeeDTO);
         }
         else {
             throw new EmployeeNotFoundException("Employee with id " + id + " not found!");
@@ -29,8 +33,9 @@ public class EmployeeController {
 
     @GetMapping("")
     public ResponseEntity<?> getAllEmployee(){
-        if(employeeService.getAllEmployees()!=null){
-            return ResponseEntity.status(HttpStatus.OK).body(employeeService.getAllEmployees());
+        List<EmployeeDTO> employeeDTOList = employeeService.getAllEmployees();
+        if(!employeeDTOList.isEmpty()){
+            return ResponseEntity.status(HttpStatus.OK).body(employeeDTOList);
         }
         else {
             throw new EmployeeNotFoundException("Employees Not found");
@@ -62,8 +67,9 @@ public class EmployeeController {
 
     @GetMapping("/summary")
     public ResponseEntity<?> getEmployeesSummary(){
-        if(!employeeService.getEmployeesSummary().isEmpty()){
-            return ResponseEntity.status(HttpStatus.OK).body(employeeService.getEmployeesSummary());
+        List<EmployeeSummaryDTO> employeeSummaryDTOList = employeeService.getEmployeesSummary();
+        if(!employeeSummaryDTOList.isEmpty()){
+            return ResponseEntity.status(HttpStatus.OK).body(employeeSummaryDTOList);
         }
         else {
             throw new EmployeeNotFoundException("Employees not found!");
@@ -72,8 +78,9 @@ public class EmployeeController {
 
     @GetMapping("/summary/{id}")
     public ResponseEntity<?> getEmployeesSummary(@PathVariable("id") Integer id){
-        if(employeeService.getEmployeeSummary(id)!=null){
-            return ResponseEntity.status(HttpStatus.OK).body(employeeService.getEmployeeSummary(id));
+        EmployeeSummaryDTO employeeSummaryDTO = employeeService.getEmployeeSummary(id);
+        if(employeeSummaryDTO!=null){
+            return ResponseEntity.status(HttpStatus.OK).body(employeeSummaryDTO);
         }
         else {
             throw new EmployeeNotFoundException("Employee with id " + id + " not found!");

@@ -55,8 +55,14 @@ public class EmployeeService {
         return employeeDTOList;
     }
 
-    public Page<EmpSummary> getALlEmployees(Pageable pageable){
-        return employeeRepository.findBy(pageable);
+    public Page<EmployeeSummaryDTO> getALlEmployees(Pageable pageable){
+        return employeeRepository.findBy(pageable).map(
+                empSummary -> new EmployeeSummaryDTO(
+                        empSummary.getId(),
+                        empSummary.getName(),
+                        empSummary.getJobTitle()
+                )
+        );
     }
 
     public EmployeeDTO updateEmployee(EmployeeDTO employeeDTO, Integer id){
