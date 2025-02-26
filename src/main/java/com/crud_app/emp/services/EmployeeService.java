@@ -1,6 +1,7 @@
 package com.crud_app.emp.services;
 
 import com.crud_app.emp.dto.EmployeeSummaryDTO;
+import com.crud_app.emp.event.EmployeeUpdateEvent;
 import com.crud_app.emp.exceptions.EmployeeAlreadyExistsException;
 import com.crud_app.emp.exceptions.EmployeeNotFoundException;
 import com.crud_app.emp.repositories.EmpSummary;
@@ -8,10 +9,12 @@ import com.crud_app.emp.dto.EmployeeDTO;
 import com.crud_app.emp.models.Employee;
 import com.crud_app.emp.repositories.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -19,11 +22,20 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.crud_app.emp.context.AuditContext.setEmployee;
+import static com.crud_app.emp.context.AuditContext.setModifiedBy;
+
 @Service
 public class EmployeeService {
 
     private final String DATE_FORMAT = "yyyy-MM-dd";
     DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(DATE_FORMAT);
+
+    private final ApplicationEventPublisher eventPublisher;
+
+    public EmployeeService(ApplicationEventPublisher eventPublisher) {
+        this.eventPublisher = eventPublisher;
+    }
 
     @Autowired
     EmployeeRepository employeeRepository;
@@ -65,18 +77,28 @@ public class EmployeeService {
         );
     }
 
+    @Transactional
     public EmployeeDTO updateEmployee(EmployeeDTO employeeDTO, Integer id){
         employeeRepository.findById(id).orElseThrow(
                 ()
                         -> new EmployeeNotFoundException("Employee with id " + id + " not found!"));
-        Employee employee = convertToEmployee(employeeDTO);
+        Employee employee = employeeRepository.getReferenceById(id);
+        employee = convertToEmployee(employeeDTO);
         employee.setId(id);
-        return convertToEmployeeDTO(employeeRepository.save(employee));
+        setModifiedBy(employee.getModifiedBy());
+        Employee savedEmployee = employeeRepository.saveAndFlush(employee);
+        setEmployee(savedEmployee);
+        employeeDTO = convertToEmployeeDTO(savedEmployee);
+        eventPublisher.publishEvent(new EmployeeUpdateEvent(savedEmployee));
+        return employeeDTO;
     }
 
-    public String deleteEmployee(Integer id){
+    public String deleteEmployee(Integer id, String modifiedBy){
         if(employeeRepository.existsById(id)){
-            employeeRepository.deleteById(id);
+            Employee employee = employeeRepository.getReferenceById(id);
+            employee.setModifiedBy(modifiedBy);
+            setModifiedBy(modifiedBy);
+            employeeRepository.delete(employee);
             return "Employee with id: " + id + " deleted.";
         }
         else {
@@ -98,6 +120,8 @@ public class EmployeeService {
         employee.setJobTitle(employeeDTO.getJobTitle());
         employee.setName(employeeDTO.getName());
         employee.setEmail(employeeDTO.getEmail());
+        employee.setCreatedBy(employeeDTO.getCreatedBy());
+        employee.setModifiedBy(employeeDTO.getModifiedBy());
         return employee;
     }
 
@@ -113,6 +137,8 @@ public class EmployeeService {
         employeeDTO.setJobTitle(employee.getJobTitle());
         employeeDTO.setName(employee.getName());
         employeeDTO.setEmail(employee.getEmail());
+        employeeDTO.setCreatedBy(employee.getCreatedBy());
+        employeeDTO.setModifiedBy(employee.getModifiedBy());
         return employeeDTO;
     }
 
