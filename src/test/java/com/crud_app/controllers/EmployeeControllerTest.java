@@ -7,17 +7,12 @@ import com.crud_app.emp.dto.EmployeeSummaryDTO;
 import com.crud_app.emp.exceptions.EmployeeAlreadyExistsException;
 import com.crud_app.emp.exceptions.EmployeeNotFoundException;
 import com.crud_app.emp.exceptions.ErrorResponse;
-import com.crud_app.emp.models.Employee;
-import com.crud_app.emp.repositories.EmpSummary;
 import com.crud_app.emp.services.EmployeeService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.ArgumentMatchers;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -32,7 +27,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.awaitility.Awaitility.given;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -50,7 +44,7 @@ public class EmployeeControllerTest {
 
     @Test
     void shouldGetEmployeeDetails() throws Exception{
-        EmployeeDTO expected = getEmployeeDTO(1,"Saran","1999-11-02","2024-11-02","PAT","saran@email.com");
+        EmployeeDTO expected = getEmployeeDTO(1,"Saran","1999-11-02","2024-11-02","PAT","saran@email.com","admin","admin");
         when(employeeService.getEmployee(1)).thenReturn(expected);
 
         MvcResult mvcResult = mockMvc.perform(get("/api/emp/1")).andExpect(status().isOk()).andReturn();
@@ -97,7 +91,7 @@ public class EmployeeControllerTest {
     @Test
     void shouldGetEmployeesDetails() throws Exception{
         List<EmployeeDTO> expected = new ArrayList<>();
-        EmployeeDTO employeeDTO = getEmployeeDTO(1,"Saran","1999-11-02","2024-11-02","PAT","saran@email.com");
+        EmployeeDTO employeeDTO = getEmployeeDTO(1,"Saran","1999-11-02","2024-11-02","PAT","saran@email.com","saran","saran");
         expected.add(employeeDTO);
         when(employeeService.getAllEmployees()).thenReturn(expected);
 
@@ -193,14 +187,18 @@ public class EmployeeControllerTest {
                 "1999-11-02",
                 "2024-11-02",
                 "PAT",
-                "saran@email.com");
+                "saran@email.com",
+                "Admin",
+                "Admin");
         when(employeeService.saveEmployee(
                 getEmployeeDTO(
                 "Saran",
                 "1999-11-02",
                 "2024-11-02",
                 "PAT",
-                "saran@email.com")
+                "saran@email.com",
+                "Saran",
+                "Saran")
         )).thenReturn(expected);
         MvcResult mvcResult = mockMvc.perform(post("/api/emp").content("{" +
                 "\"name\" : \"Saran\"," +
@@ -298,7 +296,9 @@ public class EmployeeControllerTest {
                 "1999-11-02",
                 "2024-11-02",
                 "PAT",
-                "saran@email.com");
+                "saran@email.com",
+                "Him",
+                "Him");
         when(employeeService.updateEmployee(expected,1)).thenReturn(expected);
         MvcResult mvcResult = mockMvc.perform(put("/api/emp/1").content("{" +
                                 "\"id\" : 1," +
@@ -325,7 +325,7 @@ public class EmployeeControllerTest {
 
         Page<EmployeeSummaryDTO> empSummaryPage = new PageImpl<>(List.of(emp1, emp2));
 
-        when(employeeService.getALlEmployees(any(Pageable.class))).thenReturn(empSummaryPage);
+        when(employeeService.getAllEmployees(any(Pageable.class))).thenReturn(empSummaryPage);
 
         MvcResult mvcResult = mockMvc.perform(get("/api/emp/pages")
                         .param("page", "0")
@@ -338,7 +338,7 @@ public class EmployeeControllerTest {
         System.out.println("Response: "+response);
         ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
 
-        verify(employeeService).getALlEmployees(pageableCaptor.capture());
+        verify(employeeService).getAllEmployees(pageableCaptor.capture());
         PageRequest pageable = (PageRequest) pageableCaptor.getValue();
 
         assertThat(pageable.getPageNumber()).isEqualTo(0);
@@ -350,7 +350,7 @@ public class EmployeeControllerTest {
     @Test
     void shouldDeleteEmplpoyee() throws Exception{
         String expected = "Employee with id: 1 deleted.";
-        when(employeeService.deleteEmployee(1)).thenReturn(expected);
+        when(employeeService.deleteEmployee(1,"Saran")).thenReturn(expected);
         MvcResult mvcResult = mockMvc.perform(delete("/api/emp/1"))
                 .andExpect(status().isNoContent()).andReturn();
         String actual = mvcResult.getResponse().getContentAsString();
@@ -363,7 +363,7 @@ public class EmployeeControllerTest {
         List<String> errors = new ArrayList<>();
         errors.add("Employee with id 1 not found!");
         ErrorResponse expected = getErrorResponse(HttpStatus.NOT_FOUND.value(),errors);
-        when(employeeService.deleteEmployee(1)).thenThrow(new EmployeeNotFoundException("Employee with id 1 not found!"));
+        when(employeeService.deleteEmployee(1,"Saran")).thenThrow(new EmployeeNotFoundException("Employee with id 1 not found!"));
         MvcResult mvcResult = mockMvc.perform(delete("/api/emp/1")).andExpect(status().isNotFound()).andReturn();
         String response = mvcResult.getResponse().getContentAsString();
         ErrorResponse actual = new ObjectMapper().readValue(response,ErrorResponse.class);
@@ -371,12 +371,12 @@ public class EmployeeControllerTest {
         assertThat(actual).usingRecursiveComparison().isEqualTo(expected);
     }
 
-    private EmployeeDTO getEmployeeDTO(int id, String name, String dob, String hireDate, String jobTitle, String email) {
-        return new EmployeeDTO(id,name,dob,hireDate,jobTitle,email);
+    private EmployeeDTO getEmployeeDTO(int id, String name, String dob, String hireDate, String jobTitle, String email, String createdBy, String modifiedBy) {
+        return new EmployeeDTO(id,name,dob,hireDate,jobTitle,email,createdBy,modifiedBy);
     }
 
-    private EmployeeDTO getEmployeeDTO(String name, String dob, String hireDate, String jobTitle, String email) {
-        return new EmployeeDTO(name,dob,hireDate,jobTitle,email);
+    private EmployeeDTO getEmployeeDTO(String name, String dob, String hireDate, String jobTitle, String email, String createdBy, String modifiedBy) {
+        return new EmployeeDTO(name,dob,hireDate,jobTitle,email,createdBy,modifiedBy);
     }
 
     private EmployeeSummaryDTO getEmployeeSummaryDTO(int id, String name, String jobTitle) {

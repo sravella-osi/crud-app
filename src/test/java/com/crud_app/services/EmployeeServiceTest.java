@@ -6,7 +6,7 @@ import com.crud_app.emp.exceptions.EmployeeAlreadyExistsException;
 import com.crud_app.emp.exceptions.EmployeeNotFoundException;
 import com.crud_app.emp.exceptions.ErrorResponse;
 import com.crud_app.emp.models.Employee;
-import com.crud_app.emp.repositories.EmpSummary;
+import com.crud_app.emp.repositories.projections.EmpSummary;
 import com.crud_app.emp.repositories.EmployeeRepository;
 import com.crud_app.emp.services.EmployeeService;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,7 +19,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -58,9 +57,9 @@ public class EmployeeServiceTest {
 
     @BeforeEach
     public void setUp(){
-        repoResult = convertToEmployee(getEmployeeDTO(1,"Saran","1999-11-02","2024-11-02","PAT","saran@email.com"));
-        expected = getEmployeeDTO(1,"Saran","1999-11-02","2024-11-02","PAT","saran@email.com");
-        given = getEmployeeDTO("Saran","1999-11-02","2024-11-02","PAT","saran@email.com");
+        repoResult = convertToEmployee(getEmployeeDTO(1,"Saran","1999-11-02","2024-11-02","PAT","saran@email.com","Admin","Admin"));
+        expected = getEmployeeDTO(1,"Saran","1999-11-02","2024-11-02","PAT","saran@email.com","Admin","Admin");
+        given = getEmployeeDTO("Saran","1999-11-02","2024-11-02","PAT","saran@email.com","Admin","Admin");
         id = 1;
         expectedList = new ArrayList<>();
         expectedList.add(expected);
@@ -133,7 +132,7 @@ public class EmployeeServiceTest {
     @Test
     void shouldDeleteEmployee() throws Exception{
         when(employeeRepository.existsById(id)).thenReturn(true);
-        employeeService.deleteEmployee(id);
+        employeeService.deleteEmployee(id,"Saran");
         verify(employeeRepository).deleteById(id);
     }
 
@@ -141,7 +140,7 @@ public class EmployeeServiceTest {
     void deleteEmployeeThrowsNotFoundException() throws Exception{
         when(employeeRepository.existsById(id)).thenReturn(false);
         assertThrows(EmployeeNotFoundException.class, () -> {
-            employeeService.deleteEmployee(id);
+            employeeService.deleteEmployee(id,"Saran");
         });
     }
 
@@ -175,18 +174,18 @@ public class EmployeeServiceTest {
                 new EmployeeSummaryDTO(2, "Sai", "PAT")
         );
 
-        Page<EmployeeSummaryDTO> actual = employeeService.getALlEmployees(pageable);
+        Page<EmployeeSummaryDTO> actual = employeeService.getAllEmployees(pageable);
 
         assertThat(actual.getContent()).usingRecursiveComparison().isEqualTo(expected);
     }
 
 
-    private EmployeeDTO getEmployeeDTO(int id, String name, String dob, String hireDate, String jobTitle, String email) {
-        return new EmployeeDTO(id,name,dob,hireDate,jobTitle,email);
+    private EmployeeDTO getEmployeeDTO(int id, String name, String dob, String hireDate, String jobTitle, String email, String createdBy, String modifiedBy) {
+        return new EmployeeDTO(id,name,dob,hireDate,jobTitle,email,createdBy,modifiedBy);
     }
 
-    private EmployeeDTO getEmployeeDTO(String name, String dob, String hireDate, String jobTitle, String email) {
-        return new EmployeeDTO(name,dob,hireDate,jobTitle,email);
+    private EmployeeDTO getEmployeeDTO(String name, String dob, String hireDate, String jobTitle, String email, String createdBy, String modifiedBy) {
+        return new EmployeeDTO(name,dob,hireDate,jobTitle,email,createdBy,modifiedBy);
     }
 
     private EmployeeSummaryDTO getEmployeeSummaryDTO(int id, String name, String jobTitle) {

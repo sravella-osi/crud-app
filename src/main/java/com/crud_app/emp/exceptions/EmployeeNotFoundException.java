@@ -9,4 +9,9 @@ public class EmployeeNotFoundException extends RuntimeException{
         super(message);
         this.message = message;
     }
+
+    public EmployeeNotFoundException(int id){
+        super("Employee with id " + id + " not found!");
+        this.message = "Employee with id " + id + " not found!";
+    }
 }

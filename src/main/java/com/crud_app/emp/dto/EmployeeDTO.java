@@ -1,6 +1,8 @@
 package com.crud_app.emp.dto;
 
+import jakarta.persistence.Transient;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -23,73 +25,32 @@ public class EmployeeDTO {
     private String jobTitle;
     @Email(message = "Invalid Email")
     private String email;
+    private String createdBy;
+    private String modifiedBy;
 
     public EmployeeDTO() {
     }
 
-    public EmployeeDTO(Integer id, String name, String dob, String hireDate, String jobTitle, String email) {
+    public EmployeeDTO(Integer id, String name, String dob, String hireDate, String jobTitle, String email, String createdBy, String modifiedBy) {
         this.id = id;
         this.name = name;
         this.dob = dob;
         this.hireDate = hireDate;
         this.jobTitle = jobTitle;
         this.email = email;
+        this.createdBy = createdBy;
+        this.modifiedBy = modifiedBy;
     }
 
-    public EmployeeDTO(String name, String dob, String hireDate, String jobTitle, String email) {
+
+    public EmployeeDTO(String name, String dob, String hireDate, String jobTitle, String email, String createdBy, String modifiedBy) {
         this.name = name;
         this.dob = dob;
         this.hireDate = hireDate;
         this.jobTitle = jobTitle;
         this.email = email;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDob() {
-        return dob;
-    }
-
-    public void setDob(String dob) {
-        this.dob = dob;
-    }
-
-    public String getHireDate() {
-        return hireDate;
-    }
-
-    public void setHireDate(String hireDate) {
-        this.hireDate = hireDate;
-    }
-
-    public String getJobTitle() {
-        return jobTitle;
-    }
-
-    public void setJobTitle(String jobTitle) {
-        this.jobTitle = jobTitle;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
+        this.createdBy = createdBy;
+        this.modifiedBy = modifiedBy;
     }
 
     @Override

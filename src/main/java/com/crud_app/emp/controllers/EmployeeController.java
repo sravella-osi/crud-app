@@ -55,8 +55,8 @@ public class EmployeeController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteEmployee(@PathVariable("id") Integer id){
-        String message = employeeService.deleteEmployee(id);
+    public ResponseEntity<?> deleteEmployee(@PathVariable("id") Integer id, @RequestBody String modifiedBy){
+        String message = employeeService.deleteEmployee(id,modifiedBy);
         if(message.contains("not found")){
             throw new EmployeeNotFoundException("Employee with id " + id + " not found");
         }
@@ -101,7 +101,7 @@ public class EmployeeController {
 
     @GetMapping("/pages")
     public ResponseEntity<?> getAllEmployees(Pageable pageable){
-        return ResponseEntity.status(HttpStatus.OK).body(employeeService.getALlEmployees(pageable));
+        return ResponseEntity.status(HttpStatus.OK).body(employeeService.getAllEmployees(pageable));
     }
 
 }

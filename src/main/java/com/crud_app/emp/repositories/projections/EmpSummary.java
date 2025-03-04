@@ -1,4 +1,4 @@
-package com.crud_app.emp.repositories;
+package com.crud_app.emp.repositories.projections;
 
 public interface EmpSummary {
     Integer getId();
