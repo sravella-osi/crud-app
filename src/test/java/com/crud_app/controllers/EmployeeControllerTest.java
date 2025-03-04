@@ -7,17 +7,12 @@ import com.crud_app.emp.dto.EmployeeSummaryDTO;
 import com.crud_app.emp.exceptions.EmployeeAlreadyExistsException;
 import com.crud_app.emp.exceptions.EmployeeNotFoundException;
 import com.crud_app.emp.exceptions.ErrorResponse;
-import com.crud_app.emp.models.Employee;
-import com.crud_app.emp.repositories.EmpSummary;
 import com.crud_app.emp.services.EmployeeService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.ArgumentMatchers;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -30,10 +25,8 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.awaitility.Awaitility.given;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -332,7 +325,7 @@ public class EmployeeControllerTest {
 
         Page<EmployeeSummaryDTO> empSummaryPage = new PageImpl<>(List.of(emp1, emp2));
 
-        when(employeeService.getALlEmployees(any(Pageable.class))).thenReturn(empSummaryPage);
+        when(employeeService.getAllEmployees(any(Pageable.class))).thenReturn(empSummaryPage);
 
         MvcResult mvcResult = mockMvc.perform(get("/api/emp/pages")
                         .param("page", "0")
@@ -345,7 +338,7 @@ public class EmployeeControllerTest {
         System.out.println("Response: "+response);
         ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
 
-        verify(employeeService).getALlEmployees(pageableCaptor.capture());
+        verify(employeeService).getAllEmployees(pageableCaptor.capture());
         PageRequest pageable = (PageRequest) pageableCaptor.getValue();
 
         assertThat(pageable.getPageNumber()).isEqualTo(0);

@@ -6,7 +6,7 @@ import com.crud_app.emp.exceptions.EmployeeAlreadyExistsException;
 import com.crud_app.emp.exceptions.EmployeeNotFoundException;
 import com.crud_app.emp.exceptions.ErrorResponse;
 import com.crud_app.emp.models.Employee;
-import com.crud_app.emp.repositories.EmpSummary;
+import com.crud_app.emp.repositories.projections.EmpSummary;
 import com.crud_app.emp.repositories.EmployeeRepository;
 import com.crud_app.emp.services.EmployeeService;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,7 +19,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -175,7 +174,7 @@ public class EmployeeServiceTest {
                 new EmployeeSummaryDTO(2, "Sai", "PAT")
         );
 
-        Page<EmployeeSummaryDTO> actual = employeeService.getALlEmployees(pageable);
+        Page<EmployeeSummaryDTO> actual = employeeService.getAllEmployees(pageable);
 
         assertThat(actual.getContent()).usingRecursiveComparison().isEqualTo(expected);
     }

@@ -101,7 +101,7 @@ public class EmployeeController {
 
     @GetMapping("/pages")
     public ResponseEntity<?> getAllEmployees(Pageable pageable){
-        return ResponseEntity.status(HttpStatus.OK).body(employeeService.getALlEmployees(pageable));
+        return ResponseEntity.status(HttpStatus.OK).body(employeeService.getAllEmployees(pageable));
     }
 
 }

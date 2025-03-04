@@ -1,14 +1,10 @@
 package com.crud_app.emp.models;
 
-
 import com.crud_app.emp.listeners.EmployeeAuditListener;
 import jakarta.persistence.*;
 import lombok.Data;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -52,52 +48,4 @@ public class Employee {
 
     public Employee() {
     }
-//
-//    public Integer getId() {
-//        return id;
-//    }
-//
-//    public void setId(Integer id) {
-//        this.id = id;
-//    }
-//
-//    public String getName() {
-//        return name;
-//    }
-//
-//    public void setName(String name) {
-//        this.name = name;
-//    }
-//
-//    public LocalDate getDob() {
-//        return dob;
-//    }
-//
-//    public void setDob(LocalDate dob) {
-//        this.dob = dob;
-//    }
-//
-//    public LocalDate getHireDate() {
-//        return hireDate;
-//    }
-//
-//    public void setHireDate(LocalDate hireDate) {
-//        this.hireDate = hireDate;
-//    }
-//
-//    public String getJobTitle() {
-//        return jobTitle;
-//    }
-//
-//    public void setJobTitle(String jobTitle) {
-//        this.jobTitle = jobTitle;
-//    }
-//
-//    public String getEmail() {
-//        return email;
-//    }
-//
-//    public void setEmail(String email) {
-//        this.email = email;
-//    }
 }

@@ -6,7 +6,6 @@ import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -25,14 +24,12 @@ public class EmployeeAudit {
     @NotNull
     @Column(name = "created_by", nullable = false)
     private String createdBy;
+
     @NotNull
     @Column(name = "modified_by",nullable = false)
     private String modifiedBy;
 
     private Long employeeId;
-    private String name;
-    private LocalDate dob;
-    private LocalDate hireDate;
-    private String jobTitle;
-    private String email;
+    private String beforeChanges;
+    private String afterChanges;
 }

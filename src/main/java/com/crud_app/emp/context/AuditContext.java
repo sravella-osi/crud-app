@@ -4,6 +4,7 @@ import com.crud_app.emp.models.Employee;
 
 public class AuditContext {
     private static final ThreadLocal<String> modifiedBy = new ThreadLocal<>();
+    private static final ThreadLocal<Employee> prevEmployeeThread = new ThreadLocal<>();
     private static final ThreadLocal<Employee> employeeThread = new ThreadLocal<>();
 
     public static void setModifiedBy(String modifiedByName) {
@@ -29,4 +30,17 @@ public class AuditContext {
     public static void clearEmployee() {
         employeeThread.remove();
     }
+
+    public static void setPrevEmployee(Employee employee) {
+        prevEmployeeThread.set(employee);
+    }
+
+    public static Employee getPrevEmployee() {
+        return prevEmployeeThread.get();
+    }
+
+    public static void clearPrevEmployee() {
+        prevEmployeeThread.remove();
+    }
+
 }
